@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind Reader 🔮</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: white;
+  text-align: center;
+  background: radial-gradient(ellipse at top, #32115e, #090612 70%);
+}
+
+.game {
+  width: 100%;
+  max-width: 440px;
+  padding: 30px 22px;
+  border: 1px solid #7545ac;
+  border-radius: 25px;
+  background: #160f27dd;
+  box-shadow: 0 0 50px #7c3aed22;
+}
+
+.orb {
+  font-size: 75px;
+  margin: 10px;
+  animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+h1 {
+  color: #d8b4fe;
+  font-size: 30px;
+}
+
+p {
+  color: #d4c5e8;
+  line-height: 1.8;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(100deg, #9333ea, #6d28d9);
+  transition: transform .2s;
+}
+
+button:hover { transform: scale(1.03); }
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.secondary {
+  background: #302342;
+  border: 1px solid #67468b;
+}
+
+#result {
+  color: #e9d5ff;
+  font-size: 25px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.small { font-size: 12px; color: #9c89b9; }
+</style>
+</head>
+
+<body>
+<main class="game">
+  <div class="orb" id="orb">🔮</div>
+  <h1>Mind Reader</h1>
+  <p id="message">
+    তোর মনের সংখ্যা আমি ধরে ফেলব!<br>
+    ১ থেকে ১০০-এর মধ্যে একটা সংখ্যা ভাব।
+  </p>
+
+  <div id="result"></div>
+  <button id="start" onclick="startGame()">গেম শুরু কর ✨</button>
+  <button id="yes" onclick="answer(true)" hidden>হ্যাঁ, ঠিক আছে!</button>
+  <button id="no" class="secondary" onclick="answer(false)" hidden>না, আবার বুঝিয়ে দাও</button>
+  <button id="restart" class="secondary" onclick="resetGame()" hidden>আবার খেলি 🔄</button>
+  <button id="share" class="secondary" onclick="shareGame()" hidden>বন্ধুকে চ্যালেঞ্জ দে ↗</button>
+
+  <p class="small">MADE WITH ✨ AND A LITTLE MATH</p>
+</main>
+
+<script>
+let step = 0;
+let number = 0;
+let target = 0;
+
+const message = document.getElementById("message");
+const result = document.getElementById("result");
+const orb = document.getElementById("orb");
+const start = document.getElementById("start");
+const yes = document.getElementById("yes");
+const no = document.getElementById("no");
+const restart = document.getElementById("restart");
+const share = document.getElementById("share");
+
+function hideAll() {
+  start.hidden = true;
+  yes.hidden = true;
+  no.hidden = true;
+  restart.hidden = true;
+  share.hidden = true;
+}
+
+function startGame() {
+  hideAll();
+  result.textContent = "";
+  step = 0;
+  number = Math.floor(Math.random() * 100) + 1;
+  target = number;
+
+  message.textContent =
+    "তোর সংখ্যাটাকে ২ দিয়ে গুণ কর। হয়ে গেলে নিচের বোতাম চাপ!";
+  yes.hidden = false;
+  yes.textContent = "হয়ে গেছে! ✨";
+  yes.onclick = multiply;
+  orb.textContent = "🧙";
+}
+
+function multiply() {
+  number *= 2;
+  message.textContent =
+    "এবার ফলের সঙ্গে ১০ যোগ কর। হয়ে গেলে জানাস!";
+  yes.onclick = addTen;
+}
+
+function addTen() {
+  number += 10;
+  message.textContent =
+    "এবার মোট সংখ্যাটাকে ২ দিয়ে ভাগ কর!";
+  yes.onclick = divide;
+}
+
+function divide() {
+  number /= 2;
+  message.textContent =
+    "এবার তোর প্রথমে ভাবা সংখ্যাটা বিয়োগ কর!";
+  yes.onclick = subtract;
+}
+
+function subtract() {
+  number -= target;
+  step++;
+  hideAll();
+  orb.textContent = "✨";
+  message.textContent =
+    "চোখ বন্ধ কর... ম্যাজিক শুরু হচ্ছে!";
+
+  setTimeout(() => {
+    orb.textContent = "🔮";
+    message.textContent = "তোর শেষ ফলাফল হলো...";
+    result.textContent = number;
+    yes.hidden = false;
+    yes.textContent = "ওয়াও! 😲";
+    yes.onclick = reveal;
+  }, 1300);
+}
+
+function reveal() {
+  hideAll();
+  message.textContent =
+    "এবার আসল সংখ্যাটাও বলে দিতে পারি! 😎";
+  result.textContent = "তোর সংখ্যা: " + target;
+  restart.hidden = false;
+  share.hidden = false;
+  orb.textContent = "🎉";
+}
+
+function answer() {
+  // এই ফাংশনটি অতিরিক্ত ব্যবহারের জন্য রাখা হয়েছে।
+}
+
+function resetGame() {
+  hideAll();
+  start.hidden = false;
+  result.textContent = "";
+  message.textContent =
+    "১ থেকে ১০০-এর মধ্যে একটা সংখ্যা ভাব। দেখি ধরতে পারি কি না!";
+  orb.textContent = "🔮";
+}
+
+async function shareGame() {
+  const data = {
+    title: "Mind Reader 🔮",
+    text: "এই গেমটা খেল! দেখি তোর মনের সংখ্যা ধরতে পারিস কি না 😈",
+    url: location.href
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(data);
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(
+        data.text + " " + data.url
+      );
+      alert("চ্যালেঞ্জ কপি হয়েছে! বন্ধুকে পাঠিয়ে দে 😎");
+    } else {
+      prompt("এই লিংকটা কপি করে বন্ধুকে পাঠা:", location.href);
+    }
+  } catch (e) {
+    // শেয়ার বাতিল করলে কিছু করার দরকার নেই।
+  }
+}
+</script>
+</body>
+</html>
